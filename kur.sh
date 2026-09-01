@@ -84,6 +84,9 @@ indir sw.js
 indir manifest.webmanifest
 for i in apple-touch-icon.png icon-192.png icon-512.png app-icon-1024.png; do indir "icons/$i"; done
 [ -s "$KOK/index.html" ] || dur "index.html indirilemedi; kurulum durduruldu."
+# Kurum uygulaması arama motorlarında listelenmemeli
+printf 'User-agent: *\nDisallow: /\n' > "$KOK/robots.txt"
+echo "   ✓ robots.txt (arama motorlarına kapalı)"
 chown -R root:root "$KOK"
 find "$KOK" -type f -exec chmod 644 {} \;
 find "$KOK" -type d -exec chmod 755 {} \;
@@ -118,16 +121,8 @@ $ALAN {
 
 	try_files {path} /index.html
 	file_server
-
-	log {
-		output file /var/log/caddy/erisim.log {
-			roll_size 10MiB
-			roll_keep 5
-		}
-	}
 }
 CADDY
-mkdir -p /var/log/caddy && chown -R caddy:caddy /var/log/caddy 2>/dev/null || true
 caddy fmt --overwrite /etc/caddy/Caddyfile >/dev/null 2>&1 || true
 caddy validate --config /etc/caddy/Caddyfile >/dev/null 2>&1 || dur "Caddyfile geçersiz."
 yesil "Yapılandırma yazıldı."
@@ -168,6 +163,7 @@ else
   echo "   Sertifika birkaç dakika sürebilir. Kontrol için:"
   echo "     systemctl status caddy --no-pager"
   echo "     journalctl -u caddy -n 40 --no-pager"
+  echo "   (Caddy günlükleri journald'a yazar; ayrı log dosyası yoktur.)"
 fi
 echo
 echo "Sonraki güncellemeler için aynı komutu yeniden çalıştırmanız yeterli;"
