@@ -1,6 +1,6 @@
 // NOVA ECE — saha çalışması çevrimdışı kabuğu. Sürüm dosya içeriğinden türetilir:
 // index.html değişince önbellek adı değişir ve eski sürüm silinir.
-const SURUM = 'nova-ece-866c98cdbb';
+const SURUM = 'nova-ece-499038e507';
 const DOSYALAR = [
   "./",
   "./index.html",
