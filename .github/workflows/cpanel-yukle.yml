@@ -1,0 +1,39 @@
+# NOVA ECE demo: main dalına her gönderimde cPanel sunucusuna (demo.novaece.com) FTPS ile yükler.
+# Gerekli GitHub sırları (Settings > Secrets and variables > Actions):
+#   FTP_SERVER   ör. ftp.novaece.com  (cPanel > FTP Accounts > "Configure FTP Client" bölümündeki sunucu)
+#   FTP_USERNAME ör. demo@novaece.com
+#   FTP_PASSWORD FTP hesabının şifresi
+# FTP hesabı yalnız demo.novaece.com klasörüne yetkili açılmalıdır (bkz. SUNUCU-KURULUM.md).
+name: cPanel'e yükle
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: cpanel-yukle
+  cancel-in-progress: true
+jobs:
+  yukle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sırlar tanımlı mı?
+        id: kontrol
+        env:
+          S: ${{ secrets.FTP_SERVER }}
+        run: if [ -n "$S" ]; then echo "hazir=1" >> "$GITHUB_OUTPUT"; else echo "FTP sırları henüz eklenmedi; yükleme atlandı."; fi
+      - name: FTPS ile yükle
+        if: steps.kontrol.outputs.hazir == '1'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            README.md
+            SUNUCU-KURULUM.md
