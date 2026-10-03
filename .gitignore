@@ -1,0 +1,10 @@
+# Gizli bilgiler ve kişisel dosyalar asla depoya girmesin
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.keystore
+*.jks
+.DS_Store
+node_modules/
